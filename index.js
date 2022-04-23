@@ -48,24 +48,86 @@ function view() {
 function download() {
 }
 
+function makeError(error) {
+  var errosDiv = document.getElementById('erros');
+
+  if (errosDiv) {
+    errosDiv.innerText = error;
+  }
+}
+
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 530;
 const MIME_TYPE = "image/jpeg";
 const QUALITY = 0.9;
 
 const input = document.getElementById("img-input");
-input.onchange = function (ev) {
+const buttonFor = document.getElementById("testFor");
+const buttonQuality = document.getElementById("test-quality");
 
-  const file = ev.target.files[0]; // get the file
+buttonQuality.onclick = function (ev) {
+  const widthInput = Number(document.getElementById("width").value);
+  const heightInput = Number(document.getElementById("height").value);
+  const qualityInput = document.getElementById("quality").value;
+  console.log(widthInput);
+  console.log(heightInput);
+  console.log(input.files[0])
+  if(input.files[0] == undefined){
+    makeError(`Coloque um arquivo antes`);
+    return;
+  }
+  if (widthInput && heightInput) {
+    const file = input.files[0]; // get the file
+    const blobURL = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = blobURL;
+    img.onerror = function () {
+      URL.revokeObjectURL(this.src);
+      console.log("Cannot load image");
+    };
+    img.onload = function () {
+      plotMainSize(img);
+      URL.revokeObjectURL(this.src);
+      const [newWidth, newHeight] = calculateSize(img, widthInput, heightInput);
+      const canvas = document.createElement("canvas");
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+      
+      var quality = Number(`${qualityInput}`);
+      console.log(`quality ${quality}`);
+      canvas.toBlob(
+        (blob) => {
+          // Handle the compressed image. es. upload or save in local state
+          displayInfo(`Original file ${file.name}`, file);
+          displayInfo('Compressed file', blob);
+          displayInfo(`quality ${quality}`, blob);
+          imageConversion.downloadFile(blob, `${file.name}_${quality}.jpg`)
+        },
+        MIME_TYPE,
+        quality
+      );
+      document.getElementById("canvasa").append(canvas);
+
+
+    };
+  } else {
+    makeError(`Erro nos inputs, tente novamente passando numeros`);
+  }
+}
+buttonFor.onclick = function (ev) {
+  const file = input.files[0]; // get the file
   const blobURL = URL.createObjectURL(file);
   const img = new Image();
   img.src = blobURL;
   img.onerror = function () {
     URL.revokeObjectURL(this.src);
-    // Handle the failure properly
     console.log("Cannot load image");
   };
   img.onload = function () {
+    plotMainSize(img);
     URL.revokeObjectURL(this.src);
     const [newWidth, newHeight] = calculateSize(img, MAX_WIDTH, MAX_HEIGHT);
     const canvas = document.createElement("canvas");
@@ -91,6 +153,43 @@ input.onchange = function (ev) {
     }
 
   };
+}
+input.onchange = function (ev) {
+
+  // const file = ev.target.files[0]; // get the file
+  // const blobURL = URL.createObjectURL(file);
+  // const img = new Image();
+  // img.src = blobURL;
+  // img.onerror = function () {
+  //   URL.revokeObjectURL(this.src);
+  //   console.log("Cannot load image");
+  // };
+  // img.onload = function () {
+  //   URL.revokeObjectURL(this.src);
+  //   const [newWidth, newHeight] = calculateSize(img, MAX_WIDTH, MAX_HEIGHT);
+  //   const canvas = document.createElement("canvas");
+  //   canvas.width = newWidth;
+  //   canvas.height = newHeight;
+  //   const ctx = canvas.getContext("2d");
+  //   ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+  //   for (let i = 7; i < 10; i++) {
+  //     var quality = Number(`0.${i}`);
+  //     canvas.toBlob(
+  //       (blob) => {
+  //         // Handle the compressed image. es. upload or save in local state
+  //         displayInfo('Original file', file);
+  //         displayInfo('Compressed file', blob);
+  //         displayInfo(`quality ${Number(`0.${i}`)}`, blob);
+  //         imageConversion.downloadFile(blob, `teste ${Number(`0.${i}`)}.jpg`)
+  //       },
+  //       MIME_TYPE,
+  //       quality
+  //     );
+  //     document.getElementById("root").append(canvas);
+  //   }
+
+  // };
 };
 
 function calculateSize(img, maxWidth, maxHeight) {
@@ -125,4 +224,14 @@ function readableBytes(bytes) {
     sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 
   return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
+}
+
+
+function plotMainSize(img) {
+
+  var infosDiv = document.getElementById('infos');
+
+  if (infosDiv) {
+    infosDiv.innerText = `main size ${img.width}x${img.height}`;
+  }
 }

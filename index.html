@@ -1,18 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+
 <body>
+    <input id="img-input" type="file" accept="image/*" style="display:block" />
+    <div id="infos"></div>
+    <div id="erros"></div>
     <div id="root">
-        <p>Upload an image and see the result</p>
-        <input type="text">
-        <input id="img-input" type="file" accept="image/*" style="display:block" />
-      </div>
+        <label for="width">width</label>
+        <input type="text" id="width">
+        <label for="height">height</label>
+        <input type="text" id="height">
+        <label for="quality">quality</label>
+        <input type="text" id="quality">
+        <button id="testFor">teste de 0.7 ate 0.9</button>
+        <button id="test-quality">teste qualidade inputada</button>
+    </div>
+    <div id="canvasa"></div>
     <script src="index.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/WangYuLue/image-conversion/build/conversion.js"></script>
 </body>
+
 </html>
