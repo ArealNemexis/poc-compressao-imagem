@@ -51,10 +51,11 @@ function download() {
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 530;
 const MIME_TYPE = "image/jpeg";
-const QUALITY = 1;
+const QUALITY = 0.9;
 
 const input = document.getElementById("img-input");
 input.onchange = function (ev) {
+
   const file = ev.target.files[0]; // get the file
   const blobURL = URL.createObjectURL(file);
   const img = new Image();
@@ -72,18 +73,23 @@ input.onchange = function (ev) {
     canvas.height = newHeight;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(img, 0, 0, newWidth, newHeight);
-    canvas.toBlob(
-      (blob) => {
-        // Handle the compressed image. es. upload or save in local state
-        displayInfo('Original file', file);
-        displayInfo('Compressed file', blob);
-        imageConversion.downloadFile(blob, `aaaaSierra ${QUALITY}.jpg`)
-      },
-      MIME_TYPE,
-      QUALITY
-    );
 
-    document.getElementById("root").append(canvas);
+    for (let i = 7; i < 10; i++) {
+      var quality = Number(`0.${i}`);
+      canvas.toBlob(
+        (blob) => {
+          // Handle the compressed image. es. upload or save in local state
+          displayInfo('Original file', file);
+          displayInfo('Compressed file', blob);
+          displayInfo(`quality ${Number(`0.${i}`)}`, blob);
+          imageConversion.downloadFile(blob, `teste ${Number(`0.${i}`)}.jpg`)
+        },
+        MIME_TYPE,
+        quality
+      );
+      document.getElementById("root").append(canvas);
+    }
+
   };
 };
 
